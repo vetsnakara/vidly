@@ -1,6 +1,8 @@
 /* eslint-env browser */
 /* eslint-disable react/jsx-filename-extension */
 
+import 'babel-polyfill';
+
 // eslint-disable-next-line no-unused-vars
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -9,6 +11,7 @@ import ReactDOM from 'react-dom';
 import App from './components/App';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
+import './index.css';
 
 // ReactDOM.render(<Counter />, document.querySelector('#root'));
 

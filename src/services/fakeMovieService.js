@@ -69,8 +69,13 @@ const movies = [
   },
 ];
 
-export function getMovies() {
-  return movies;
+export async function getMovies() {
+  const result = await new Promise(res => {
+    setTimeout(() => {
+      res(movies);
+    }, 1000);
+  });
+  return result;
 }
 
 export function getMovie(id) {
