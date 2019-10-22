@@ -1,8 +1,11 @@
+/* eslint-disable class-methods-use-this */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable jsx-a11y/control-has-associated-label */
 /* eslint-disable react/state-in-constructor */
 
 import React from 'react';
+import Like from './Like/Like';
+
 import { getMovies } from '../services/fakeMovieService';
 
 class Movies extends React.Component {
@@ -20,6 +23,22 @@ class Movies extends React.Component {
       const movies = prevState.movies.filter(m => m._id !== _id);
       return {
         movies,
+      };
+    });
+  }
+
+  handleLike({ _id }) {
+    this.setState(({ movies }) => {
+      return {
+        movies: movies.map(movie => {
+          if (movie._id === _id) {
+            return {
+              ...movie,
+              liked: !movie.liked,
+            };
+          }
+          return movie;
+        }),
       };
     });
   }
@@ -42,6 +61,7 @@ class Movies extends React.Component {
               <th>Stock</th>
               <th>Rate</th>
               <th />
+              <th />
             </tr>
           </thead>
           <tbody>
@@ -51,6 +71,12 @@ class Movies extends React.Component {
                 <td>{movie.genre.name}</td>
                 <td>{movie.numberInStock}</td>
                 <td>{movie.dailyRentalRate}</td>
+                <td>
+                  <Like
+                    liked={movie.liked}
+                    onLike={() => this.handleLike(movie)}
+                  />
+                </td>
                 <td>
                   <button
                     type="button"
