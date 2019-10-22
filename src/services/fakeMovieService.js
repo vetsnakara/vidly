@@ -73,7 +73,7 @@ export async function getMovies() {
   const result = await new Promise(res => {
     setTimeout(() => {
       res(movies);
-    }, 1000);
+    }, 1);
   });
   return result;
 }
