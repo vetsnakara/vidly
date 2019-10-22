@@ -1,3 +1,5 @@
+/* eslint-disable react/sort-comp */
+/* eslint-disable react/jsx-fragments */
 /* eslint-disable class-methods-use-this */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable jsx-a11y/control-has-associated-label */
@@ -5,26 +7,21 @@
 
 import React from 'react';
 import Like from './Like/Like';
+import Pagination from './Pagination';
 
 import { getMovies } from '../services/fakeMovieService';
+import { paginate } from '../utils/paginate';
 
 class Movies extends React.Component {
   state = {
     movies: null,
     loading: true,
+    pageSize: 4,
+    currentPage: 1,
   };
 
   componentDidMount() {
     getMovies().then(movies => this.setState({ movies, loading: false }));
-  }
-
-  handleDelete({ _id }) {
-    this.setState(prevState => {
-      const movies = prevState.movies.filter(m => m._id !== _id);
-      return {
-        movies,
-      };
-    });
   }
 
   handleLike({ _id }) {
@@ -43,16 +40,33 @@ class Movies extends React.Component {
     });
   }
 
-  render() {
-    const { movies, loading } = this.state;
+  handlePageChange = page => {
+    this.setState({ currentPage: page });
+  };
 
+  handleDelete({ _id }) {
+    this.setState(prevState => {
+      const movies = prevState.movies.filter(m => m._id !== _id);
+      return {
+        movies,
+      };
+    });
+  }
+
+  render() {
+    const { loading } = this.state;
     if (loading) return <p>Loading...</p>;
 
-    if (movies.length === 0) return <p>There no movies in database.</p>;
+    const { movies: allMovies, pageSize, currentPage } = this.state;
+    const { length: count } = allMovies;
+
+    const movies = paginate(allMovies, currentPage, pageSize);
+
+    if (count === 0) return <p>There no movies in database.</p>;
 
     return (
-      <div>
-        <p>{`Showing ${movies.length} movies in database.`}</p>
+      <React.Fragment>
+        <p>{`Showing ${count} movies in database.`}</p>
         <table className="table">
           <thead>
             <tr>
@@ -90,7 +104,13 @@ class Movies extends React.Component {
             ))}
           </tbody>
         </table>
-      </div>
+        <Pagination
+          itemsCount={count}
+          pageSize={pageSize}
+          onPageChange={this.handlePageChange}
+          currentPage={currentPage}
+        />
+      </React.Fragment>
     );
   }
 }
