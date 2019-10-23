@@ -78,13 +78,7 @@ class Movies extends React.Component {
     });
   };
 
-  handleSort = path =>
-    this.setState(({ sortColumn: { order } }) => ({
-      sortColumn: {
-        path,
-        order: order === 'asc' ? 'desc' : 'asc',
-      },
-    }));
+  handleSort = sortColumn => this.setState({ sortColumn });
 
   render() {
     const { loading } = this.state;
@@ -136,6 +130,7 @@ class Movies extends React.Component {
             <React.Fragment>
               <MoviesTable
                 movies={movies}
+                sortColumn={sortColumn}
                 onLike={this.handleLike}
                 onDelete={this.handleDelete}
                 onSort={this.handleSort}
