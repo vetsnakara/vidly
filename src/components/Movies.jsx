@@ -72,6 +72,10 @@ class Movies extends React.Component {
     });
   };
 
+  handleSort = path => {
+    console.log(path);
+  };
+
   render() {
     const { loading } = this.state;
     if (loading) return <p>Loading...</p>;
@@ -116,6 +120,7 @@ class Movies extends React.Component {
                 movies={movies}
                 onLike={this.handleLike}
                 onDelete={this.handleDelete}
+                onSort={this.handleSort}
               />
               <Pagination
                 itemsCount={count}
