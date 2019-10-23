@@ -5,6 +5,8 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 /* eslint-disable react/state-in-constructor */
 
+import _ from 'lodash';
+
 import React from 'react';
 import Pagination from './Pagination';
 import ListGroup from './ListGroup/ListGroup';
@@ -21,6 +23,10 @@ class Movies extends React.Component {
     selectedGenre: null,
     pageSize: 4,
     currentPage: 1,
+    sortColumn: {
+      path: 'title',
+      order: 'asc',
+    },
     loading: true,
   };
 
@@ -72,9 +78,13 @@ class Movies extends React.Component {
     });
   };
 
-  handleSort = path => {
-    console.log(path);
-  };
+  handleSort = path =>
+    this.setState(({ sortColumn: { order } }) => ({
+      sortColumn: {
+        path,
+        order: order === 'asc' ? 'desc' : 'asc',
+      },
+    }));
 
   render() {
     const { loading } = this.state;
@@ -86,6 +96,7 @@ class Movies extends React.Component {
       selectedGenre,
       pageSize,
       currentPage,
+      sortColumn,
     } = this.state;
 
     // filter movies by genre
@@ -96,8 +107,15 @@ class Movies extends React.Component {
 
     const { length: count } = filteredMovies;
 
+    // sort movies
+    const sortedMovies = _.orderBy(
+      filteredMovies,
+      [sortColumn.path],
+      [sortColumn.order],
+    );
+
     // paginate movies
-    const movies = paginate(filteredMovies, currentPage, pageSize);
+    const movies = paginate(sortedMovies, currentPage, pageSize);
 
     return (
       <div className="row">
