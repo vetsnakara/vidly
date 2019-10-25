@@ -4,32 +4,21 @@
 
 import React from 'react';
 import Like from './Like';
+import TableHeader from './TableHeader';
 
 function MoviesTable({ movies, sortColumn, onDelete, onLike, onSort }) {
-  function raiseSort(path) {
-    const newSortColumn = { path };
-
-    if (path === sortColumn.path) {
-      newSortColumn.order = sortColumn.order === 'asc' ? 'desc' : 'asc';
-    } else {
-      newSortColumn.order = 'asc';
-    }
-
-    onSort(newSortColumn);
-  }
+  const columns = [
+    { path: 'title', label: 'Title' },
+    { path: 'genre.name', label: 'Genre' },
+    { path: 'numberInStock', label: 'Stock' },
+    { path: 'dailyRentalRate', label: 'Rate' },
+    { key: 'like' }, // for Like component
+    { key: 'delete' }, // for Delete button
+  ];
 
   return (
     <table className="table">
-      <thead>
-        <tr>
-          <th onClick={() => raiseSort('title')}>Title</th>
-          <th onClick={() => raiseSort('genre.name')}>Genre</th>
-          <th onClick={() => raiseSort('numberInStock')}>Stock</th>
-          <th onClick={() => raiseSort('dailyRentalRate')}>Rate</th>
-          <th />
-          <th />
-        </tr>
-      </thead>
+      <TableHeader columns={columns} onSort={onSort} sortColumn={sortColumn} />
       <tbody>
         {movies.map(movie => (
           <tr key={movie._id}>
