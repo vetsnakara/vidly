@@ -80,17 +80,13 @@ class Movies extends React.Component {
 
   handleSort = sortColumn => this.setState({ sortColumn });
 
-  render() {
-    const { loading } = this.state;
-    if (loading) return <p>Loading...</p>;
-
+  getPagedData() {
     const {
       movies: allMovies,
-      genres,
       selectedGenre,
-      pageSize,
-      currentPage,
       sortColumn,
+      currentPage,
+      pageSize,
     } = this.state;
 
     // filter movies by genre
@@ -110,6 +106,23 @@ class Movies extends React.Component {
 
     // paginate movies
     const movies = paginate(sortedMovies, currentPage, pageSize);
+
+    return { count, data: movies };
+  }
+
+  render() {
+    const { loading } = this.state;
+    if (loading) return <p>Loading...</p>;
+
+    const {
+      sortColumn,
+      genres,
+      selectedGenre,
+      pageSize,
+      currentPage,
+    } = this.state;
+
+    const { count, data: movies } = this.getPagedData();
 
     return (
       <div className="row">
