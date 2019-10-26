@@ -12,6 +12,7 @@ import Movies from './Movies';
 import Customers from './Customers';
 import Rentals from './Renatals';
 import MovieForm from './MovieForm';
+import LoginForm from './LoginForm';
 import NotFound from './NotFound';
 
 class App extends React.Component {
@@ -30,6 +31,7 @@ class App extends React.Component {
             <Route path="/customers" component={Customers} />
             <Route path="/rentals" component={Rentals} />
             <Route path="/not-found" component={NotFound} />
+            <Route path="/login" component={LoginForm} />
             <Redirect exact from="/" to="/movies" />
             <Redirect to="/not-found" />
           </Switch>
