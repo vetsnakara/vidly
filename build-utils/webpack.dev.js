@@ -14,6 +14,7 @@ module.exports = {
     hot: true,
     open: true,
     overlay: true,
+    historyApiFallback: true,
   },
 
   devtool: 'eval-source-map',
