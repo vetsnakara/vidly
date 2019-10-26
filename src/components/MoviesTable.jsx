@@ -4,8 +4,7 @@
 
 import React from 'react';
 
-import TableHeader from './TableHeader';
-import TableBody from './TableBody';
+import Table from './Table';
 import Like from './Like';
 
 function MoviesTable({ movies, sortColumn, onDelete, onLike, onSort }) {
@@ -35,10 +34,12 @@ function MoviesTable({ movies, sortColumn, onDelete, onLike, onSort }) {
   ];
 
   return (
-    <table className="table">
-      <TableHeader columns={columns} onSort={onSort} sortColumn={sortColumn} />
-      <TableBody columns={columns} items={movies} />
-    </table>
+    <Table
+      items={movies}
+      columns={columns}
+      sortColumn={sortColumn}
+      onSort={onSort}
+    />
   );
 }
 
