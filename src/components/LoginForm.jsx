@@ -1,6 +1,9 @@
+/* eslint-disable class-methods-use-this */
 /* eslint-disable react/state-in-constructor */
 
 import React from 'react';
+
+import Input from './Input';
 
 class LoginForm extends React.Component {
   state = {
@@ -8,67 +11,94 @@ class LoginForm extends React.Component {
       username: '',
       password: '',
     },
+    errors: {},
   };
-
-  username = React.createRef();
-
-  password = React.createRef();
-
-  componentDidMount() {
-    this.username.current.focus();
-  }
 
   handleSubmit = e => {
     e.preventDefault();
-    // const username = this.username.current.value;
-    // const password = this.password.current.value;
+
+    // check errors
+    const errors = this.validate();
+    this.setState({ errors: errors || {} });
+    if (errors) return;
+    console.log('Form is submitted to the server');
   };
 
   handleChange = ({ target: input }) => {
     const { name, value } = input;
-    this.setState(({ account }) => ({
-      account: {
-        ...account,
-        [name]: value,
-      },
-    }));
+
+    // check errors
+    this.setState(state => {
+      const { account } = state;
+      const errors = { ...state.errors };
+
+      const errorMessage = this.validateInput(input);
+      if (errorMessage) errors[name] = errorMessage;
+      else delete errors[name];
+
+      return {
+        account: {
+          ...account,
+          [name]: value,
+        },
+        errors,
+      };
+    });
   };
 
-  render() {
+  // eslint-disable-next-line class-methods-use-this
+  validate() {
     const { account } = this.state;
+    const { username, password } = account;
+    const errors = {};
+
+    if (!username.trim()) {
+      errors.username = 'Username is required';
+    }
+
+    if (!password.trim()) {
+      errors.password = 'Password is required';
+    }
+
+    return Object.keys(errors).length > 0 ? errors : null;
+  }
+
+  validateInput({ name, value }) {
+    if (name === 'username') {
+      if (!value.trim()) {
+        return 'Username is required';
+      }
+    }
+    if (name === 'password') {
+      if (!value.trim()) {
+        return 'Password is required';
+      }
+    }
+    return null;
+  }
+
+  render() {
+    const { account, errors } = this.state;
     const { username, password } = account;
 
     return (
       <div>
         <h1 className="mb-3">Login Form</h1>
         <form onSubmit={this.handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="username">
-              Username
-              <input
-                id="username"
-                name="username"
-                type="text"
-                className="form-control"
-                ref={this.username}
-                onChange={this.handleChange}
-                value={username}
-              />
-            </label>
-          </div>
-          <div className="form-group">
-            <label htmlFor="password">
-              Password
-              <input
-                id="password"
-                name="password"
-                type="text"
-                className="form-control"
-                onChange={this.handleChange}
-                value={password}
-              />
-            </label>
-          </div>
+          <Input
+            name="username"
+            label="Username"
+            value={username}
+            onChange={this.handleChange}
+            error={errors.username}
+          />
+          <Input
+            name="password"
+            label="Password"
+            value={password}
+            onChange={this.handleChange}
+            error={errors.password}
+          />
           <button type="submit" className="btn btn-primary">
             Login
           </button>
