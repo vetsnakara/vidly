@@ -1,8 +1,9 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable react/state-in-constructor */
 
-import React from 'react';
+import Joi from 'joi-browser';
 
+import React from 'react';
 import Input from './Input';
 
 class LoginForm extends React.Component {
@@ -12,6 +13,15 @@ class LoginForm extends React.Component {
       password: '',
     },
     errors: {},
+  };
+
+  validateSchema = {
+    username: Joi.string()
+      .required()
+      .label('Username'),
+    password: Joi.string()
+      .required()
+      .label('Password'),
   };
 
   handleSubmit = e => {
@@ -49,32 +59,38 @@ class LoginForm extends React.Component {
   // eslint-disable-next-line class-methods-use-this
   validate() {
     const { account } = this.state;
-    const { username, password } = account;
-    const errors = {};
 
-    if (!username.trim()) {
-      errors.username = 'Username is required';
-    }
+    const options = {
+      abortEarly: false,
+    };
 
-    if (!password.trim()) {
-      errors.password = 'Password is required';
-    }
+    const { error: results } = Joi.validate(
+      account,
+      this.validateSchema,
+      options,
+    );
 
-    return Object.keys(errors).length > 0 ? errors : null;
+    if (!results) return null;
+
+    const errors = results.details.reduce((all, current) => {
+      const { path, message } = current;
+      const [name] = path;
+
+      return { ...all, [name]: message };
+    }, {});
+
+    return errors;
   }
 
   validateInput({ name, value }) {
-    if (name === 'username') {
-      if (!value.trim()) {
-        return 'Username is required';
-      }
-    }
-    if (name === 'password') {
-      if (!value.trim()) {
-        return 'Password is required';
-      }
-    }
-    return null;
+    const input = { [name]: value };
+
+    const schema = { [name]: this.validateSchema[name] };
+
+    const { error } = Joi.validate(input, schema);
+    const message = error ? error.details[0].message : null;
+
+    return message;
   }
 
   render() {
