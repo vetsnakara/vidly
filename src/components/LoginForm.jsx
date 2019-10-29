@@ -72,14 +72,18 @@ class LoginForm extends React.Component {
 
     if (!results) return null;
 
-    const errors = results.details.reduce((all, current) => {
+    const errors = this.collectErrors(results);
+
+    return errors;
+  }
+
+  collectErrors(results) {
+    return results.details.reduce((all, current) => {
       const { path, message } = current;
       const [name] = path;
 
       return { ...all, [name]: message };
     }, {});
-
-    return errors;
   }
 
   validateInput({ name, value }) {
@@ -115,7 +119,11 @@ class LoginForm extends React.Component {
             onChange={this.handleChange}
             error={errors.password}
           />
-          <button type="submit" className="btn btn-primary">
+          <button
+            disabled={this.validate()}
+            type="submit"
+            className="btn btn-primary"
+          >
             Login
           </button>
         </form>
