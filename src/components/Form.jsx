@@ -1,7 +1,8 @@
 /* eslint-disable react/state-in-constructor */
 import Joi from 'joi-browser';
 
-import { Component } from 'react';
+import React, { Component } from 'react';
+import Input from './Input';
 
 class Form extends Component {
   static collectErrors(results) {
@@ -77,6 +78,35 @@ class Form extends Component {
     const message = error ? error.details[0].message : null;
 
     return message;
+  }
+
+  renderSubmitButton(label) {
+    return (
+      <button
+        disabled={this.validate()}
+        type="submit"
+        className="btn btn-primary"
+      >
+        {label}
+      </button>
+    );
+  }
+
+  renderInput(options) {
+    const { name, label, type = 'text' } = options;
+
+    const { data, errors } = this.state;
+
+    return (
+      <Input
+        type={type}
+        name={name}
+        label={label}
+        onChange={this.handleChange}
+        value={data[name]}
+        error={errors[name]}
+      />
+    );
   }
 }
 
