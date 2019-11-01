@@ -1,13 +1,13 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable react/state-in-constructor */
 import Joi from 'joi-browser';
 
 import React, { Component } from 'react';
 import Input from './Input';
+import Select from './Select';
 
 class Form extends Component {
   static collectErrors(results) {
-    console.log('collect');
-
     return results.details.reduce((all, current) => {
       const { path, message } = current;
       const [name] = path;
@@ -105,6 +105,21 @@ class Form extends Component {
         onChange={this.handleChange}
         value={data[name]}
         error={errors[name]}
+      />
+    );
+  }
+
+  renderSelect(options) {
+    const { name, label, itemsFieldName = `${name}s`, selectedValue } = options;
+    const { data } = this.state;
+
+    return (
+      <Select
+        name={name}
+        label={label}
+        items={data[itemsFieldName]}
+        selectedValue={selectedValue}
+        onChange={this.handleChange}
       />
     );
   }

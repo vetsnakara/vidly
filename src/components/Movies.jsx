@@ -30,17 +30,21 @@ class Movies extends React.Component {
     loading: true,
   };
 
-  componentDidMount() {
-    Promise.all([getMovies(), getGenres()]).then(([movies, genres]) => {
-      const defaultGenre = { _id: ALL_GENRES_ID, name: 'All Genres' };
+  async componentDidMount() {
+    const [movies, genres] = await this.getMoviesAndGenres();
 
-      this.setState({
-        movies,
-        genres: [defaultGenre, ...genres],
-        selectedGenre: defaultGenre,
-        loading: false,
-      });
+    const defaultGenre = { _id: ALL_GENRES_ID, name: 'All Genres' };
+
+    this.setState({
+      movies,
+      genres: [defaultGenre, ...genres],
+      selectedGenre: defaultGenre,
+      loading: false,
     });
+  }
+
+  getMoviesAndGenres() {
+    return Promise.all([getMovies(), getGenres()]);
   }
 
   handleLike = ({ _id }) =>

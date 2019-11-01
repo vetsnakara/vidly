@@ -69,17 +69,22 @@ const movies = [
   },
 ];
 
-export async function getMovies() {
-  const result = await new Promise(res => {
+export function getMovies() {
+  return new Promise(res => {
     setTimeout(() => {
       res(movies);
     }, 1);
   });
-  return result;
 }
 
-export function getMovie(id) {
-  return movies.find(m => m._id === id);
+export async function getMovie(id) {
+  const result = await new Promise(res => {
+    setTimeout(() => {
+      const movie = movies.find(m => m._id === id);
+      res(movie);
+    });
+  });
+  return result;
 }
 
 export function saveMovie(movie) {
