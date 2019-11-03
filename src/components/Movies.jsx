@@ -12,11 +12,13 @@ import { Link } from 'react-router-dom';
 import Pagination from './Pagination';
 import ListGroup from './ListGroup/ListGroup';
 import MoviesTable from './MoviesTable';
+import Search from './Search';
 
 import { getMovies, saveMovie } from '../services/fakeMovieService';
 import { getGenres, ALL_GENRES_ID } from '../services/fakeGenreService';
 import { paginate } from '../utils/paginate';
 import { mapModelToView } from '../utils/mapModelToView';
+import { byGenre, byTitle } from '../utils/filters';
 
 class Movies extends React.Component {
   state = {
@@ -30,6 +32,7 @@ class Movies extends React.Component {
       order: 'asc',
     },
     loading: true,
+    searchTerm: '',
   };
 
   async componentDidMount() {
@@ -89,6 +92,7 @@ class Movies extends React.Component {
     this.setState({
       selectedGenre,
       currentPage: 1,
+      searchTerm: '',
     });
   };
 
@@ -101,13 +105,13 @@ class Movies extends React.Component {
       sortColumn,
       currentPage,
       pageSize,
+      searchTerm,
     } = this.state;
 
-    // filter movies by genre
     const filteredMovies =
       selectedGenre._id === ALL_GENRES_ID
-        ? allMovies
-        : allMovies.filter(({ genre }) => genre._id === selectedGenre._id);
+        ? allMovies.filter(byTitle(searchTerm))
+        : allMovies.filter(byGenre(selectedGenre));
 
     const { length: count } = filteredMovies;
 
@@ -124,6 +128,9 @@ class Movies extends React.Component {
     return { count, data: movies };
   }
 
+  handleSearch = searchTerm =>
+    this.setState({ searchTerm, selectedGenre: { _id: ALL_GENRES_ID } });
+
   render() {
     const { loading } = this.state;
     if (loading) return <p>Loading...</p>;
@@ -134,6 +141,7 @@ class Movies extends React.Component {
       selectedGenre,
       pageSize,
       currentPage,
+      searchTerm,
     } = this.state;
 
     const { count, data: movies } = this.getPagedData();
@@ -162,6 +170,7 @@ class Movies extends React.Component {
                 ? `Showing ${count} movies in database.`
                 : 'There no movies in database.'}
             </p>
+            <Search searchTerm={searchTerm} onSearch={this.handleSearch} />
             {count > 0 && (
               <React.Fragment>
                 <MoviesTable
