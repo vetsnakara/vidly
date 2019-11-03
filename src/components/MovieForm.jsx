@@ -2,32 +2,35 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable react/state-in-constructor */
 
+// todo: add like to db
+
 import Joi from 'joi-browser';
 
 import React from 'react';
 import Form from './Form';
 
 import { getGenres } from '../services/fakeGenreService';
-import { getMovie } from '../services/fakeMovieService';
+import { getMovie, saveMovie } from '../services/fakeMovieService';
 
 class MovieForm extends Form {
-  state = {
-    data: {
+  constructor(props) {
+    super(props);
+
+    // extend Form's state
+    this.state.data = {
       title: '',
       genreId: '',
       numberInStock: '',
-      rate: '',
+      dailyRentalRate: '',
       genres: [],
-    },
-    errors: {},
-    loading: true,
-  };
+    };
+  }
 
   validateSchema = {
     title: Joi.string()
       .required()
       .label('Title'),
-    genre: Joi.string()
+    genreId: Joi.string()
       .required()
       .label('Genre'),
     numberInStock: Joi.number()
@@ -35,7 +38,7 @@ class MovieForm extends Form {
       .min(0)
       .max(100)
       .label('Number in stock'),
-    rate: Joi.number()
+    dailyRentalRate: Joi.number()
       .required()
       .min(0)
       .max(10)
@@ -43,9 +46,21 @@ class MovieForm extends Form {
     genres: Joi.array(),
   };
 
-  doSubmit() {
-    const { history } = this.props;
-    history.push('/movies');
+  async doSubmit() {
+    const { id: _id } = this.props.match.params;
+    const { title, genreId, numberInStock, dailyRentalRate } = this.state.data;
+
+    const movie = await saveMovie({
+      _id,
+      title,
+      genreId,
+      numberInStock,
+      dailyRentalRate,
+    });
+
+    console.log(movie);
+
+    this.props.history.push('/movies');
   }
 
   async componentDidMount() {
@@ -57,24 +72,28 @@ class MovieForm extends Form {
 
     const {
       title,
-      genre: { _id: genre },
+      genre: { _id: genreId },
       numberInStock,
-      dailyRentalRate: rate,
+      dailyRentalRate,
     } = movie;
 
     this.setState({
       data: {
         title,
-        genre,
+        genreId,
         numberInStock,
-        rate,
+        dailyRentalRate,
         genres,
       },
+      loading: false,
     });
   }
 
   render() {
-    const { genre } = this.state.data;
+    const { data, loading } = this.state;
+    const { genreId } = data;
+
+    if (loading) return <p>Loading movie ...</p>;
 
     return (
       <div>
@@ -83,11 +102,13 @@ class MovieForm extends Form {
           {this.renderInput({
             name: 'title',
             label: 'Title',
+            autoFocus: true,
           })}
           {this.renderSelect({
-            name: 'genre',
+            name: 'genreId',
             label: 'Genre',
-            selectedValue: genre,
+            selectedValue: genreId,
+            itemsFieldName: 'genres',
           })}
           {this.renderInput({
             name: 'numberInStock',
@@ -95,7 +116,7 @@ class MovieForm extends Form {
             type: 'number',
           })}
           {this.renderInput({
-            name: 'rate',
+            name: 'dailyRentalRate',
             label: 'Rate',
             type: 'number',
           })}

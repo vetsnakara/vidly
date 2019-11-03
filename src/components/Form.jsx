@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-props-no-spreading */
 /* eslint-disable no-unused-vars */
 /* eslint-disable react/state-in-constructor */
 import Joi from 'joi-browser';
@@ -17,8 +18,8 @@ class Form extends Component {
   }
 
   state = {
-    data: {},
     errors: {},
+    loading: true,
   };
 
   handleSubmit = e => {
@@ -26,6 +27,7 @@ class Form extends Component {
 
     const errors = this.validate();
     this.setState({ errors: errors || {} });
+    // todo: делать setState не только для errors, но и для данных (приведенных к нужным типам)
     if (errors) return;
 
     this.doSubmit();
@@ -60,13 +62,16 @@ class Form extends Component {
       abortEarly: false,
     };
 
-    const { error: results } = Joi.validate(data, this.validateSchema, options);
+    const results = Joi.validate(data, this.validateSchema, options);
 
-    if (!results) return null;
+    let { errors } = results;
 
-    const errors = this.constructor.collectErrors(results);
+    if (!errors) return null;
+
+    errors = this.constructor.collectErrors(errors);
 
     return errors;
+    // todo: возвращать не только ошибки, но и сконвертированные к нужным типам данные
   }
 
   validateInput({ name, value }) {
@@ -81,9 +86,11 @@ class Form extends Component {
   }
 
   renderSubmitButton(label) {
+    const { loading } = this.state;
+
     return (
       <button
-        disabled={this.validate()}
+        disabled={loading || this.validate()}
         type="submit"
         className="btn btn-primary"
       >
@@ -93,7 +100,7 @@ class Form extends Component {
   }
 
   renderInput(options) {
-    const { name, label, type = 'text' } = options;
+    const { name, label, type = 'text', ...rest } = options;
 
     const { data, errors } = this.state;
 
@@ -105,6 +112,7 @@ class Form extends Component {
         onChange={this.handleChange}
         value={data[name]}
         error={errors[name]}
+        {...rest}
       />
     );
   }

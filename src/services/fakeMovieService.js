@@ -87,19 +87,35 @@ export async function getMovie(id) {
   return result;
 }
 
-export function saveMovie(movie) {
-  const movieInDb = movies.find(m => m._id === movie._id) || {};
-  movieInDb.name = movie.name;
-  movieInDb.genre = genresAPI.genres.find(g => g._id === movie.genreId);
-  movieInDb.numberInStock = movie.numberInStock;
-  movieInDb.dailyRentalRate = movie.dailyRentalRate;
+export async function saveMovie(movie) {
+  const { _id, title, genreId, numberInStock, dailyRentalRate } = movie;
 
-  if (!movieInDb._id) {
-    movieInDb._id = Date.now();
-    movies.push(movieInDb);
-  }
+  return new Promise(res => {
+    setTimeout(() => {
+      const movieInDb = {
+        title,
+        numberInStock,
+        dailyRentalRate,
+        genre: genresAPI.genres.find(g => g._id === genreId),
+      };
 
-  return movieInDb;
+      if (!_id) {
+        movieInDb._id = Date.now();
+        movies.push(movieInDb);
+      } else {
+        const index = movies.findIndex(m => m._id === _id);
+
+        movies[index] = {
+          ...movies[index],
+          ...movieInDb,
+        };
+      }
+
+      console.log(movies);
+
+      res(movieInDb);
+    }, 1);
+  });
 }
 
 export function deleteMovie(id) {

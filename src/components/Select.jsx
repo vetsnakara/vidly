@@ -24,8 +24,8 @@ function Select({
           name={name}
           id={name}
           value={selectedValue}
-          {...rest}
           className="form-control"
+          {...rest}
         >
           {items.map(item => {
             const key = item[itemProps.key];
