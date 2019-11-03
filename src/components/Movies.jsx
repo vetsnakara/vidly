@@ -129,7 +129,11 @@ class Movies extends React.Component {
   }
 
   handleSearch = searchTerm =>
-    this.setState({ searchTerm, selectedGenre: { _id: ALL_GENRES_ID } });
+    this.setState({
+      searchTerm,
+      selectedGenre: { _id: ALL_GENRES_ID },
+      currentPage: 1,
+    });
 
   render() {
     const { loading } = this.state;
