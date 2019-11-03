@@ -1,4 +1,4 @@
-export const ALL_GENRES_ID = 0;
+export const ALL_GENRES_ID = 'ALL_GENRES_ID';
 
 export const genres = [
   { _id: '5b21ca3eeb7f6fbccd471818', name: 'Action' },
