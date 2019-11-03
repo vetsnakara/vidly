@@ -8,13 +8,15 @@
 import _ from 'lodash';
 
 import React from 'react';
+import { Link } from 'react-router-dom';
 import Pagination from './Pagination';
 import ListGroup from './ListGroup/ListGroup';
 import MoviesTable from './MoviesTable';
 
-import { getMovies } from '../services/fakeMovieService';
+import { getMovies, saveMovie } from '../services/fakeMovieService';
 import { getGenres, ALL_GENRES_ID } from '../services/fakeGenreService';
 import { paginate } from '../utils/paginate';
+import { mapModelToView } from '../utils/mapModelToView';
 
 class Movies extends React.Component {
   state = {
@@ -30,33 +32,45 @@ class Movies extends React.Component {
     loading: true,
   };
 
-  componentDidMount() {
-    Promise.all([getMovies(), getGenres()]).then(([movies, genres]) => {
-      const defaultGenre = { _id: ALL_GENRES_ID, name: 'All Genres' };
+  async componentDidMount() {
+    const [movies, genres] = await this.getMoviesAndGenres();
 
-      this.setState({
-        movies,
-        genres: [defaultGenre, ...genres],
-        selectedGenre: defaultGenre,
-        loading: false,
-      });
+    const defaultGenre = { _id: ALL_GENRES_ID, name: 'All Genres' };
+
+    this.setState({
+      movies,
+      genres: [defaultGenre, ...genres],
+      selectedGenre: defaultGenre,
+      loading: false,
     });
   }
 
-  handleLike = ({ _id }) =>
-    this.setState(({ movies }) => {
-      return {
-        movies: movies.map(movie => {
-          if (movie._id === _id) {
-            return {
-              ...movie,
-              liked: !movie.liked,
-            };
-          }
-          return movie;
-        }),
-      };
-    });
+  getMoviesAndGenres() {
+    return Promise.all([getMovies(), getGenres()]);
+  }
+
+  handleLike = async ({ _id }) => {
+    let movie;
+
+    this.setState(
+      state => {
+        const movies = [...state.movies];
+
+        const index = movies.findIndex(m => m._id === _id);
+
+        movie = { ...movies[index] };
+        movie.liked = !movie.liked;
+
+        movies.splice(index, 1, movie);
+
+        return { movies };
+      },
+      async () => {
+        const movieToSave = mapModelToView(movie);
+        return saveMovie(movieToSave);
+      },
+    );
+  };
 
   handlePageChange = page => this.setState({ currentPage: page });
 
@@ -140,6 +154,9 @@ class Movies extends React.Component {
             />
           </div>
           <div className="col">
+            <Link to="/movies/new" className="btn btn-primary mb-3">
+              New Movie
+            </Link>
             <p>
               {count > 0
                 ? `Showing ${count} movies in database.`

@@ -6,11 +6,10 @@ export const genres = [
   { _id: '5b21ca3eeb7f6fbccd471820', name: 'Thriller' },
 ];
 
-export async function getGenres() {
-  const result = await new Promise(res => {
+export function getGenres() {
+  return new Promise(res => {
     setTimeout(() => {
       res(genres);
     }, 1);
   });
-  return result;
 }

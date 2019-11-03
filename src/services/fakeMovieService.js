@@ -69,32 +69,52 @@ const movies = [
   },
 ];
 
-export async function getMovies() {
-  const result = await new Promise(res => {
+export function getMovies() {
+  return new Promise(res => {
     setTimeout(() => {
       res(movies);
     }, 1);
   });
+}
+
+export async function getMovie(id) {
+  const result = await new Promise(res => {
+    setTimeout(() => {
+      const movie = movies.find(m => m._id === id);
+      res(movie);
+    });
+  });
   return result;
 }
 
-export function getMovie(id) {
-  return movies.find(m => m._id === id);
-}
+export async function saveMovie(movie) {
+  const { _id, title, genreId, numberInStock, dailyRentalRate, liked } = movie;
 
-export function saveMovie(movie) {
-  const movieInDb = movies.find(m => m._id === movie._id) || {};
-  movieInDb.name = movie.name;
-  movieInDb.genre = genresAPI.genres.find(g => g._id === movie.genreId);
-  movieInDb.numberInStock = movie.numberInStock;
-  movieInDb.dailyRentalRate = movie.dailyRentalRate;
+  return new Promise(res => {
+    setTimeout(() => {
+      const movieInDb = {
+        title,
+        numberInStock,
+        dailyRentalRate,
+        genre: genresAPI.genres.find(g => g._id === genreId),
+        liked,
+      };
 
-  if (!movieInDb._id) {
-    movieInDb._id = Date.now();
-    movies.push(movieInDb);
-  }
+      if (!_id) {
+        movieInDb._id = Date.now().toString();
+        movies.push(movieInDb);
+      } else {
+        const index = movies.findIndex(m => m._id === _id);
 
-  return movieInDb;
+        movies[index] = {
+          ...movies[index],
+          ...movieInDb,
+        };
+      }
+
+      res(movieInDb);
+    }, 1);
+  });
 }
 
 export function deleteMovie(id) {

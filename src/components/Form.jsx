@@ -1,14 +1,15 @@
+/* eslint-disable react/jsx-props-no-spreading */
+/* eslint-disable no-unused-vars */
 /* eslint-disable react/state-in-constructor */
 import Joi from 'joi-browser';
 
 import React, { Component } from 'react';
 import Input from './Input';
+import Select from './Select';
 
 class Form extends Component {
-  static collectErrors(results) {
-    console.log('collect');
-
-    return results.details.reduce((all, current) => {
+  static collectErrorMessages(error) {
+    return error.details.reduce((all, current) => {
       const { path, message } = current;
       const [name] = path;
 
@@ -17,8 +18,8 @@ class Form extends Component {
   }
 
   state = {
-    data: {},
     errors: {},
+    loading: true,
   };
 
   handleSubmit = e => {
@@ -26,6 +27,7 @@ class Form extends Component {
 
     const errors = this.validate();
     this.setState({ errors: errors || {} });
+    // todo: делать setState не только для errors, но и для данных (приведенных к нужным типам)
     if (errors) return;
 
     this.doSubmit();
@@ -56,17 +58,20 @@ class Form extends Component {
   validate() {
     const { data } = this.state;
 
-    const options = {
+    const validationOptions = {
       abortEarly: false,
     };
 
-    const { error: results } = Joi.validate(data, this.validateSchema, options);
+    const results = Joi.validate(data, this.validateSchema, validationOptions);
 
-    if (!results) return null;
+    let { error } = results;
 
-    const errors = this.constructor.collectErrors(results);
+    if (!error) return null;
 
-    return errors;
+    error = this.constructor.collectErrorMessages(error);
+
+    return error;
+    // todo: возвращать не только ошибки, но и сконвертированные к нужным типам данные
   }
 
   validateInput({ name, value }) {
@@ -81,9 +86,11 @@ class Form extends Component {
   }
 
   renderSubmitButton(label) {
+    const { loading } = this.state;
+
     return (
       <button
-        disabled={this.validate()}
+        disabled={loading || this.validate()}
         type="submit"
         className="btn btn-primary"
       >
@@ -93,7 +100,7 @@ class Form extends Component {
   }
 
   renderInput(options) {
-    const { name, label, type = 'text' } = options;
+    const { name, label, type = 'text', ...rest } = options;
 
     const { data, errors } = this.state;
 
@@ -104,6 +111,23 @@ class Form extends Component {
         label={label}
         onChange={this.handleChange}
         value={data[name]}
+        error={errors[name]}
+        {...rest}
+      />
+    );
+  }
+
+  renderSelect(options) {
+    const { name, label, itemsFieldName = `${name}s`, selectedValue } = options;
+    const { data, errors } = this.state;
+
+    return (
+      <Select
+        name={name}
+        label={label}
+        items={data[itemsFieldName]}
+        selectedValue={selectedValue}
+        onChange={this.handleChange}
         error={errors[name]}
       />
     );
