@@ -26,7 +26,7 @@ class MovieForm extends Form {
       numberInStock: '',
       dailyRentalRate: '',
       genres: [],
-      liked: null,
+      liked: false,
     };
   }
 

@@ -70,6 +70,8 @@ class Form extends Component {
 
     error = this.constructor.collectErrorMessages(error);
 
+    console.log(error);
+
     return error;
     // todo: возвращать не только ошибки, но и сконвертированные к нужным типам данные
   }
