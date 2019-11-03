@@ -88,7 +88,7 @@ export async function getMovie(id) {
 }
 
 export async function saveMovie(movie) {
-  const { _id, title, genreId, numberInStock, dailyRentalRate } = movie;
+  const { _id, title, genreId, numberInStock, dailyRentalRate, liked } = movie;
 
   return new Promise(res => {
     setTimeout(() => {
@@ -97,10 +97,11 @@ export async function saveMovie(movie) {
         numberInStock,
         dailyRentalRate,
         genre: genresAPI.genres.find(g => g._id === genreId),
+        liked,
       };
 
       if (!_id) {
-        movieInDb._id = Date.now();
+        movieInDb._id = Date.now().toString();
         movies.push(movieInDb);
       } else {
         const index = movies.findIndex(m => m._id === _id);
@@ -110,8 +111,6 @@ export async function saveMovie(movie) {
           ...movieInDb,
         };
       }
-
-      console.log(movies);
 
       res(movieInDb);
     }, 1);

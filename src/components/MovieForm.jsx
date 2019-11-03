@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable consistent-return */
 /* eslint-disable class-methods-use-this */
 /* eslint-disable react/state-in-constructor */
@@ -12,6 +13,8 @@ import Form from './Form';
 import { getGenres } from '../services/fakeGenreService';
 import { getMovie, saveMovie } from '../services/fakeMovieService';
 
+import { mapModelToView } from '../utils/mapModelToView';
+
 class MovieForm extends Form {
   constructor(props) {
     super(props);
@@ -23,10 +26,12 @@ class MovieForm extends Form {
       numberInStock: '',
       dailyRentalRate: '',
       genres: [],
+      liked: null,
     };
   }
 
   validateSchema = {
+    _id: Joi.string(),
     title: Joi.string()
       .required()
       .label('Title'),
@@ -43,12 +48,19 @@ class MovieForm extends Form {
       .min(0)
       .max(10)
       .label('Rate'),
+    liked: Joi.boolean(),
     genres: Joi.array(),
   };
 
   async doSubmit() {
-    const { id: _id } = this.props.match.params;
-    const { title, genreId, numberInStock, dailyRentalRate } = this.state.data;
+    const {
+      _id,
+      title,
+      genreId,
+      numberInStock,
+      dailyRentalRate,
+      liked,
+    } = this.state.data;
 
     const movie = await saveMovie({
       _id,
@@ -56,6 +68,7 @@ class MovieForm extends Form {
       genreId,
       numberInStock,
       dailyRentalRate,
+      liked,
     });
 
     console.log(movie);
@@ -64,25 +77,27 @@ class MovieForm extends Form {
   }
 
   async componentDidMount() {
+    const { data } = this.state;
     const { id } = this.props.match.params;
 
-    const [movie, genres] = await Promise.all([getMovie(id), getGenres()]);
+    const genres = await getGenres();
+    this.setState({
+      data: { ...data, genres },
+    });
 
+    if (id === 'new') {
+      this.setState({
+        loading: false,
+      });
+      return;
+    }
+
+    const movie = await getMovie(id);
     if (!movie) return this.props.history.replace('/not-found');
-
-    const {
-      title,
-      genre: { _id: genreId },
-      numberInStock,
-      dailyRentalRate,
-    } = movie;
 
     this.setState({
       data: {
-        title,
-        genreId,
-        numberInStock,
-        dailyRentalRate,
+        ...mapModelToView(movie),
         genres,
       },
       loading: false,

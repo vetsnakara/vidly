@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/control-has-associated-label */
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable react/jsx-props-no-spreading */
@@ -14,6 +15,7 @@ function Select({
     value: '_id',
     title: 'name',
   },
+  error,
   ...rest
 }) {
   return (
@@ -27,6 +29,7 @@ function Select({
           className="form-control"
           {...rest}
         >
+          <option key="" value="" />
           {items.map(item => {
             const key = item[itemProps.key];
             const value = item[itemProps.value];
@@ -40,6 +43,7 @@ function Select({
           })}
         </select>
       </label>
+      {error && <div className="alert alert-danger">{error}</div>}
     </div>
   );
 }

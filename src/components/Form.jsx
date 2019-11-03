@@ -8,8 +8,8 @@ import Input from './Input';
 import Select from './Select';
 
 class Form extends Component {
-  static collectErrors(results) {
-    return results.details.reduce((all, current) => {
+  static collectErrorMessages(error) {
+    return error.details.reduce((all, current) => {
       const { path, message } = current;
       const [name] = path;
 
@@ -58,19 +58,19 @@ class Form extends Component {
   validate() {
     const { data } = this.state;
 
-    const options = {
+    const validationOptions = {
       abortEarly: false,
     };
 
-    const results = Joi.validate(data, this.validateSchema, options);
+    const results = Joi.validate(data, this.validateSchema, validationOptions);
 
-    let { errors } = results;
+    let { error } = results;
 
-    if (!errors) return null;
+    if (!error) return null;
 
-    errors = this.constructor.collectErrors(errors);
+    error = this.constructor.collectErrorMessages(error);
 
-    return errors;
+    return error;
     // todo: возвращать не только ошибки, но и сконвертированные к нужным типам данные
   }
 
@@ -119,7 +119,7 @@ class Form extends Component {
 
   renderSelect(options) {
     const { name, label, itemsFieldName = `${name}s`, selectedValue } = options;
-    const { data } = this.state;
+    const { data, errors } = this.state;
 
     return (
       <Select
@@ -128,6 +128,7 @@ class Form extends Component {
         items={data[itemsFieldName]}
         selectedValue={selectedValue}
         onChange={this.handleChange}
+        error={errors[name]}
       />
     );
   }
