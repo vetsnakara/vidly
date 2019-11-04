@@ -7,13 +7,14 @@ import 'babel-polyfill';
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-// import Counter from './components/Counter';
 import App from './components/App';
+
+import logger from './services/logService';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './index.css';
 
-// ReactDOM.render(<Counter />, document.querySelector('#root'));
+logger.init();
 
 ReactDOM.render(<App />, document.querySelector('#root'));
 

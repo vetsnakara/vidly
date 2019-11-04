@@ -6,6 +6,7 @@
 
 import React from 'react';
 import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
 
 import NavBar from './NavBar';
 import Movies from './Movies';
@@ -15,6 +16,8 @@ import MovieForm from './MovieForm';
 import LoginForm from './LoginForm';
 import RegisterForm from './RegisterForm';
 import NotFound from './NotFound';
+
+import 'react-toastify/dist/ReactToastify.css';
 
 class App extends React.Component {
   render() {
@@ -38,6 +41,7 @@ class App extends React.Component {
             <Redirect to="/not-found" />
           </Switch>
         </main>
+        <ToastContainer />
       </BrowserRouter>
     );
   }

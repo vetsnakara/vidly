@@ -9,13 +9,15 @@ import _ from 'lodash';
 
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { toast } from 'react-toastify';
+
 import Pagination from './Pagination';
 import ListGroup from './ListGroup/ListGroup';
 import MoviesTable from './MoviesTable';
 import Search from './Search';
 
-import { getMovies, saveMovie } from '../services/fakeMovieService';
-import { getGenres, ALL_GENRES_ID } from '../services/fakeGenreService';
+import { getGenres, ALL_GENRES_ID } from '../services/genreService';
+import { getMovies, saveMovie, deleteMovie } from '../services/movieService';
 import { paginate } from '../utils/paginate';
 import { mapModelToView } from '../utils/mapModelToView';
 import { byGenre, byTitle } from '../utils/filters';
@@ -77,13 +79,26 @@ class Movies extends React.Component {
 
   handlePageChange = page => this.setState({ currentPage: page });
 
-  handleDelete = ({ _id }) =>
-    this.setState(prevState => {
-      const movies = prevState.movies.filter(m => m._id !== _id);
+  handleDelete = async ({ _id }) => {
+    let originalMovies;
+
+    this.setState(({ movies }) => {
+      originalMovies = [...movies];
       return {
-        movies,
+        movies: originalMovies.filter(m => m._id !== _id),
       };
     });
+
+    try {
+      await deleteMovie(_id);
+      toast.success('Successfully deleted!');
+    } catch (err) {
+      if (err.response && err.response.status === 404) {
+        toast.info('This movie has already been deleted.');
+      }
+      this.setState({ movies: originalMovies });
+    }
+  };
 
   handleGenreSelect = ({ _id }) => {
     const { genres } = this.state;
