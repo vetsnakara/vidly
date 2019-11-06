@@ -6,6 +6,8 @@ import Joi from 'joi-browser';
 import React from 'react';
 import Form from './Form';
 
+import * as userService from '../services/userService';
+
 class RegisterForm extends Form {
   state = {
     data: {
@@ -30,8 +32,9 @@ class RegisterForm extends Form {
       .label('Name'),
   };
 
-  doSubmit() {
-    console.log('Register Form is submitted to the server');
+  async doSubmit() {
+    const { data: user } = this.state;
+    await userService.register(user);
   }
 
   render() {
