@@ -1,9 +1,12 @@
+/* eslint-disable no-undef */
 /* eslint-disable class-methods-use-this */
 /* eslint-disable react/state-in-constructor */
 
 import Joi from 'joi-browser';
 
 import React from 'react';
+import { toast } from 'react-toastify';
+
 import Form from './Form';
 
 import * as userService from '../services/userService';
@@ -35,7 +38,10 @@ class RegisterForm extends Form {
   async doSubmit() {
     try {
       const { data: user } = this.state;
-      await userService.register(user);
+      const { headers } = await userService.register(user);
+      localStorage.setItem('token', headers['x-auth-token']);
+      toast.success('Welcome!');
+      this.props.history.push('/');
     } catch (ex) {
       if (ex.response && ex.response.status === 400) {
         this.setState(({ errors }) => ({
