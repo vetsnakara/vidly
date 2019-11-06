@@ -1,3 +1,5 @@
+/* eslint-disable react/prop-types */
+/* eslint-disable react/destructuring-assignment */
 /* eslint-disable react/sort-comp */
 /* eslint-disable react/jsx-fragments */
 /* eslint-disable class-methods-use-this */
@@ -72,7 +74,8 @@ class Movies extends React.Component {
       },
       async () => {
         const movieToSave = mapModelToView(movie);
-        return saveMovie(movieToSave);
+        await saveMovie(movieToSave);
+        toast.success(`Movie "${movie.title}" updataed!`);
       },
     );
   };

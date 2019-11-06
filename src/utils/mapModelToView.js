@@ -8,6 +8,6 @@ export function mapModelToView(movie) {
     genreId: movie.genre._id,
     numberInStock: movie.numberInStock,
     dailyRentalRate: movie.dailyRentalRate,
-    liked: !!movie.liked,
+    // liked: !!movie.liked,
   };
 }

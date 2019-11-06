@@ -4,9 +4,16 @@ import { apiUrl } from '../config.json';
 
 const apiEndpoint = `${apiUrl}/movies`;
 
+const movieUrl = id => `${apiEndpoint}/${id}`;
+
 export const getMovies = () => http.get(apiEndpoint).then(({ data }) => data);
 
-export const deleteMovie = movieId =>
-  http.delete(`${apiEndpoint}/${movieId}`).then(({ data }) => data);
+export const getMovie = id => http.get(movieUrl(id)).then(({ data }) => data);
 
-export const saveMovie = movie => console.log(movie);
+export const deleteMovie = id =>
+  http.delete(movieUrl(id)).then(({ data }) => data);
+
+export const saveMovie = ({ _id: movieId, ...body }) => {
+  if (movieId) return http.put(movieUrl(movieId), body);
+  return http.post(apiEndpoint, body);
+};

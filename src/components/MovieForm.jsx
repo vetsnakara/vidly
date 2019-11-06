@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-fragments */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable consistent-return */
 /* eslint-disable class-methods-use-this */
@@ -8,10 +9,12 @@
 import Joi from 'joi-browser';
 
 import React from 'react';
+import { toast } from 'react-toastify';
+
 import Form from './Form';
 
-import { getGenres } from '../services/fakeGenreService';
-import { getMovie, saveMovie } from '../services/fakeMovieService';
+import { getGenres } from '../services/genreService';
+import { getMovie, saveMovie } from '../services/movieService';
 
 import { mapModelToView } from '../utils/mapModelToView';
 
@@ -21,17 +24,18 @@ class MovieForm extends Form {
 
     // extend Form's state
     this.state.data = {
+      _id: '',
       title: '',
       genreId: '',
       numberInStock: '',
       dailyRentalRate: '',
       genres: [],
-      liked: false,
+      // liked: false,
     };
   }
 
   validateSchema = {
-    _id: Joi.string(),
+    _id: Joi.string().allow(''),
     title: Joi.string()
       .required()
       .label('Title'),
@@ -53,55 +57,61 @@ class MovieForm extends Form {
   };
 
   async doSubmit() {
-    const {
-      _id,
-      title,
-      genreId,
-      numberInStock,
-      dailyRentalRate,
-      liked,
-    } = this.state.data;
+    const { genres, ...movie } = this.state.data;
 
-    const movie = await saveMovie({
-      _id,
-      title,
-      genreId,
-      numberInStock,
-      dailyRentalRate,
-      liked,
-    });
+    try {
+      await saveMovie(movie);
 
-    console.log(movie);
+      const toastMessage = movie._id
+        ? 'Movie successfully updated!'
+        : 'Movie successfully added!';
 
-    this.props.history.push('/movies');
+      toast.success(toastMessage);
+
+      this.props.history.push('/movies');
+    } catch (ex) {
+      if (ex.response) {
+        toast.info(ex.response.data);
+      }
+    }
   }
 
   async componentDidMount() {
-    const { data } = this.state;
+    await this.populateGenres();
+    await this.populateMovie();
+  }
+
+  async populateGenres() {
+    const genres = await getGenres();
+
+    this.setState(({ data }) => ({
+      data: { ...data, genres },
+    }));
+  }
+
+  async populateMovie() {
     const { id } = this.props.match.params;
 
-    const genres = await getGenres();
-    this.setState({
-      data: { ...data, genres },
-    });
-
-    if (id === 'new') {
-      this.setState({
+    if (id === 'new')
+      return this.setState({
         loading: false,
       });
-      return;
+
+    try {
+      const movie = await getMovie(id);
+
+      this.setState(({ data: { genres } }) => ({
+        data: {
+          ...mapModelToView(movie),
+          genres,
+        },
+        loading: false,
+      }));
+    } catch (err) {
+      if (err.response && err.response.status === 404) {
+        this.props.history.replace('/not-found');
+      }
     }
-
-    const movie = await getMovie(id);
-    if (!movie) return this.props.history.replace('/not-found');
-
-    this.setState({
-      data: {
-        ...mapModelToView(movie),
-        genres,
-      },
-      loading: false,
-    });
   }
 
   render() {
