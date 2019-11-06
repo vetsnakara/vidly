@@ -1,9 +1,12 @@
+/* eslint-disable no-undef */
 /* eslint-disable class-methods-use-this */
 /* eslint-disable react/state-in-constructor */
 
 import Joi from 'joi-browser';
 
 import React from 'react';
+import { toast } from 'react-toastify';
+
 import Form from './Form';
 
 import * as authService from '../services/authService';
@@ -31,7 +34,10 @@ class LoginForm extends Form {
   async doSubmit() {
     try {
       const { username: email, password } = this.state.data;
-      await authService.login(email, password);
+      const { data: jwt } = await authService.login(email, password);
+      localStorage.setItem('token', jwt);
+      this.props.history.push('/');
+      toast.success('Welcome!');
     } catch (ex) {
       if (ex.response && ex.response.status === 400) {
         this.setState(({ errors }) => ({
