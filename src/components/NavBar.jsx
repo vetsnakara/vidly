@@ -1,5 +1,8 @@
+/* eslint-disable react/prop-types */
+/* eslint-disable react/jsx-fragments */
 import React from 'react';
 import { NavLink, Link } from 'react-router-dom';
+import { UserConsumer } from '../context/user';
 
 function NavBar() {
   return (
@@ -18,12 +21,34 @@ function NavBar() {
           <NavLink className="nav-item nav-link" to="/rentals">
             Rentals
           </NavLink>
-          <NavLink className="nav-item nav-link" to="/login">
-            Login
-          </NavLink>
-          <NavLink className="nav-item nav-link" to="/register">
-            Register
-          </NavLink>
+          <UserConsumer>
+            {({ user }) => {
+              return (
+                <React.Fragment>
+                  {!user && (
+                    <React.Fragment>
+                      <NavLink className="nav-item nav-link" to="/login">
+                        Login
+                      </NavLink>
+                      <NavLink className="nav-item nav-link" to="/register">
+                        Register
+                      </NavLink>
+                    </React.Fragment>
+                  )}
+                  {user && (
+                    <React.Fragment>
+                      <NavLink className="nav-item nav-link" to="/profile">
+                        {user.name}
+                      </NavLink>
+                      <NavLink className="nav-item nav-link" to="/logout">
+                        Logout
+                      </NavLink>
+                    </React.Fragment>
+                  )}
+                </React.Fragment>
+              );
+            }}
+          </UserConsumer>
         </div>
       </div>
     </nav>

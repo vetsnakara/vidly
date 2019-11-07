@@ -11,6 +11,9 @@ import Form from './Form';
 
 import * as authService from '../services/authService';
 
+import WithContext from './hoc/WithContext';
+import UserContext from '../context/user';
+
 class LoginForm extends Form {
   state = {
     data: {
@@ -32,12 +35,15 @@ class LoginForm extends Form {
   };
 
   async doSubmit() {
+    const { setUser } = this.props.context;
+
     try {
       const { username: email, password } = this.state.data;
       const { data: jwt } = await authService.login(email, password);
       localStorage.setItem('token', jwt);
+      setUser();
+      toast.success(`Welcome!`);
       this.props.history.push('/');
-      toast.success('Welcome!');
     } catch (ex) {
       if (ex.response && ex.response.status === 400) {
         this.setState(({ errors }) => ({
@@ -68,4 +74,4 @@ class LoginForm extends Form {
   }
 }
 
-export default LoginForm;
+export default WithContext(UserContext, LoginForm);
