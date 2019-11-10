@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-props-no-spreading */
 /* eslint-disable react/no-unused-state */
 /* eslint-disable no-empty */
 /* eslint-disable react/state-in-constructor */
@@ -57,6 +58,8 @@ class App extends React.Component {
   };
 
   render() {
+    const { user } = this.state;
+
     return (
       <UserProvider value={this.state}>
         <BrowserRouter>
@@ -67,7 +70,13 @@ class App extends React.Component {
           </div>
           <main className="container">
             <Switch>
-              <Route path="/movies/:id" component={MovieForm} />
+              <Route
+                path="/movies/:id"
+                render={props => {
+                  if (!user) return <Redirect to="/login" />;
+                  return <MovieForm {...props} />;
+                }}
+              />
               <Route path="/movies" component={Movies} />
               <Route path="/customers" component={Customers} />
               <Route path="/rentals" component={Rentals} />

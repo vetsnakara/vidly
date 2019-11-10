@@ -18,6 +18,8 @@ import ListGroup from './ListGroup/ListGroup';
 import MoviesTable from './MoviesTable';
 import Search from './Search';
 
+import { UserConsumer } from '../context/user';
+
 import { getGenres, ALL_GENRES_ID } from '../services/genreService';
 import { getMovies, saveMovie, deleteMovie } from '../services/movieService';
 import { paginate } from '../utils/paginate';
@@ -96,8 +98,9 @@ class Movies extends React.Component {
       await deleteMovie(_id);
       toast.success('Successfully deleted!');
     } catch (err) {
-      if (err.response && err.response.status === 404) {
-        toast.info('This movie has already been deleted.');
+      if (err.response) {
+        console.log(err.response);
+        toast.info(err.response.data);
       }
       this.setState({ movies: originalMovies });
     }
@@ -169,50 +172,62 @@ class Movies extends React.Component {
     const { count, data: movies } = this.getPagedData();
 
     return (
-      <React.Fragment>
-        <div className="row mb-3">
-          <div className="col">
-            <h1>Movies</h1>
-          </div>
-        </div>
-        <div className="row">
-          <div className="col-3">
-            <ListGroup
-              items={genres}
-              selectedItem={selectedGenre}
-              onItemSelect={this.handleGenreSelect}
-            />
-          </div>
-          <div className="col">
-            <Link to="/movies/new" className="btn btn-primary mb-3">
-              New Movie
-            </Link>
-            <p>
-              {count > 0
-                ? `Showing ${count} movies in database.`
-                : 'There no movies in database.'}
-            </p>
-            <Search searchTerm={searchTerm} onSearch={this.handleSearch} />
-            {count > 0 && (
-              <React.Fragment>
-                <MoviesTable
-                  movies={movies}
-                  sortColumn={sortColumn}
-                  onLike={this.handleLike}
-                  onDelete={this.handleDelete}
-                  onSort={this.handleSort}
-                />
-                <Pagination
-                  itemsCount={count}
-                  pageSize={pageSize}
-                  onPageChange={this.handlePageChange}
-                  currentPage={currentPage}
-                />
-              </React.Fragment>
-            )}
-          </div>
-        </div>
-      </React.Fragment>
+      <UserConsumer>
+        {({ user }) => {
+          console.log(user);
+          return (
+            <React.Fragment>
+              <div className="row mb-3">
+                <div className="col">
+                  <h1>Movies</h1>
+                </div>
+              </div>
+              <div className="row">
+                <div className="col-3">
+                  <ListGroup
+                    items={genres}
+                    selectedItem={selectedGenre}
+                    onItemSelect={this.handleGenreSelect}
+                  />
+                </div>
+                <div className="col">
+                  {user && (
+                    <Link to="/movies/new" className="btn btn-primary mb-3">
+                      New Movie
+                    </Link>
+                  )}
+                  <p>
+                    {count > 0
+                      ? `Showing ${count} movies in database.`
+                      : 'There no movies in database.'}
+                  </p>
+                  <Search
+                    searchTerm={searchTerm}
+                    onSearch={this.handleSearch}
+                  />
+                  {count > 0 && (
+                    <React.Fragment>
+                      <MoviesTable
+                        movies={movies}
+                        sortColumn={sortColumn}
+                        onLike={this.handleLike}
+                        onDelete={this.handleDelete}
+                        onSort={this.handleSort}
+                      />
+                      <Pagination
+                        itemsCount={count}
+                        pageSize={pageSize}
+                        onPageChange={this.handlePageChange}
+                        currentPage={currentPage}
+                      />
+                    </React.Fragment>
+                  )}
+                </div>
+              </div>
+            </React.Fragment>
+          );
+        }}
+      </UserConsumer>
     );
   }
 }
