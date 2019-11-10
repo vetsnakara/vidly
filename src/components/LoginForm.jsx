@@ -9,7 +9,7 @@ import { toast } from 'react-toastify';
 
 import Form from './Form';
 
-import * as authService from '../services/authService';
+import authService from '../services/authService';
 
 import WithContext from './hoc/WithContext';
 import UserContext from '../context/user';
@@ -35,14 +35,14 @@ class LoginForm extends Form {
   };
 
   async doSubmit() {
-    const { setUser } = this.props.context;
-
     try {
+      const { context } = this.props;
       const { username: email, password } = this.state.data;
-      const { data: jwt } = await authService.login(email, password);
-      localStorage.setItem('token', jwt);
-      setUser();
-      toast.success(`Welcome!`);
+
+      const user = await authService.login(email, password);
+
+      toast.success(`Welcome, ${user.name}!`);
+      context.setUser(user);
       this.props.history.push('/');
     } catch (ex) {
       if (ex.response && ex.response.status === 400) {

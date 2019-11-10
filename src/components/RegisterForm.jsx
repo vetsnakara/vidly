@@ -9,7 +9,7 @@ import { toast } from 'react-toastify';
 
 import Form from './Form';
 
-import * as userService from '../services/userService';
+import userService from '../services/userService';
 
 import WithContext from './hoc/WithContext';
 import UserContext from '../context/user';
@@ -39,14 +39,14 @@ class RegisterForm extends Form {
   };
 
   async doSubmit() {
-    const { setUser } = this.props.context;
+    const { context } = this.props;
 
     try {
-      const { data: user } = this.state;
-      const { headers } = await userService.register(user);
-      localStorage.setItem('token', headers['x-auth-token']);
-      setUser();
-      toast.success(`Welcome!`);
+      const { data: credits } = this.state;
+      const user = await userService.register(credits);
+
+      toast.success(`Welcome, ${user.name}!`);
+      context.setUser(user);
       this.props.history.push('/');
     } catch (ex) {
       if (ex.response && ex.response.status === 400) {

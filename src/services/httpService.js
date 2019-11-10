@@ -1,6 +1,19 @@
+/* eslint-disable no-param-reassign */
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import logger from './logService';
+
+// import logger from './logService';
+import tokenService from './tokenService';
+
+axios.interceptors.request.use(config => {
+  const token = tokenService.get();
+
+  if (token) {
+    config.headers.common['x-auth-token'] = token;
+  }
+
+  return config;
+});
 
 axios.interceptors.response.use(null, error => {
   const expectedError =
@@ -10,7 +23,8 @@ axios.interceptors.response.use(null, error => {
 
   if (!expectedError) {
     toast.error('Unexpected error occured');
-    logger.log(error);
+    console.log(error);
+    // logger.log(error);
   }
 
   return Promise.reject(error);
