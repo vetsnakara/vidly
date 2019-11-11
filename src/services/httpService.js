@@ -7,6 +7,8 @@ import tokenService from './tokenService';
 
 axios.defaults.baseURL = process.env.REACT_APP_API_URL;
 
+console.log(axios.defaults.baseURL);
+
 axios.interceptors.request.use(config => {
   const token = tokenService.get();
 
