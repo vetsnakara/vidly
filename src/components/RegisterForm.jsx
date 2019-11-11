@@ -1,10 +1,19 @@
+/* eslint-disable no-undef */
 /* eslint-disable class-methods-use-this */
 /* eslint-disable react/state-in-constructor */
 
 import Joi from 'joi-browser';
 
 import React from 'react';
+import { Redirect } from 'react-router-dom';
+import { toast } from 'react-toastify';
+
 import Form from './Form';
+
+import userService from '../services/userService';
+
+import WithContext from './hoc/WithContext';
+import UserContext from '../context/user';
 
 class RegisterForm extends Form {
   state = {
@@ -30,11 +39,29 @@ class RegisterForm extends Form {
       .label('Name'),
   };
 
-  doSubmit() {
-    console.log('Register Form is submitted to the server');
+  async doSubmit() {
+    const { context } = this.props;
+
+    try {
+      const { data: credits } = this.state;
+      const user = await userService.register(credits);
+
+      toast.success(`Welcome, ${user.name}!`);
+      context.setUser(user);
+      this.props.history.push('/');
+    } catch (ex) {
+      if (ex.response && ex.response.status === 400) {
+        this.setState(({ errors }) => ({
+          errors: { ...errors, username: ex.response.data },
+        }));
+      }
+    }
   }
 
   render() {
+    const { user } = this.props.context;
+    if (user) return <Redirect to="/" />;
+
     return (
       <div>
         <h1 className="mb-3">Register Form</h1>
@@ -59,4 +86,4 @@ class RegisterForm extends Form {
   }
 }
 
-export default RegisterForm;
+export default WithContext(UserContext, RegisterForm);

@@ -1,3 +1,5 @@
+/* eslint-disable react/prop-types */
+/* eslint-disable react/destructuring-assignment */
 /* eslint-disable react/sort-comp */
 /* eslint-disable react/jsx-fragments */
 /* eslint-disable class-methods-use-this */
@@ -9,13 +11,17 @@ import _ from 'lodash';
 
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { toast } from 'react-toastify';
+
 import Pagination from './Pagination';
 import ListGroup from './ListGroup/ListGroup';
 import MoviesTable from './MoviesTable';
 import Search from './Search';
 
-import { getMovies, saveMovie } from '../services/fakeMovieService';
-import { getGenres, ALL_GENRES_ID } from '../services/fakeGenreService';
+import { UserConsumer } from '../context/user';
+
+import { getGenres, ALL_GENRES_ID } from '../services/genreService';
+import { getMovies, saveMovie, deleteMovie } from '../services/movieService';
 import { paginate } from '../utils/paginate';
 import { mapModelToView } from '../utils/mapModelToView';
 import { byGenre, byTitle } from '../utils/filters';
@@ -70,20 +76,35 @@ class Movies extends React.Component {
       },
       async () => {
         const movieToSave = mapModelToView(movie);
-        return saveMovie(movieToSave);
+        await saveMovie(movieToSave);
+        toast.success(`Movie "${movie.title}" updataed!`);
       },
     );
   };
 
   handlePageChange = page => this.setState({ currentPage: page });
 
-  handleDelete = ({ _id }) =>
-    this.setState(prevState => {
-      const movies = prevState.movies.filter(m => m._id !== _id);
+  handleDelete = async ({ _id }) => {
+    let originalMovies;
+
+    this.setState(({ movies }) => {
+      originalMovies = [...movies];
       return {
-        movies,
+        movies: originalMovies.filter(m => m._id !== _id),
       };
     });
+
+    try {
+      await deleteMovie(_id);
+      toast.success('Successfully deleted!');
+    } catch (err) {
+      if (err.response) {
+        console.log(err.response);
+        toast.info(err.response.data);
+      }
+      this.setState({ movies: originalMovies });
+    }
+  };
 
   handleGenreSelect = ({ _id }) => {
     const { genres } = this.state;
@@ -151,50 +172,61 @@ class Movies extends React.Component {
     const { count, data: movies } = this.getPagedData();
 
     return (
-      <React.Fragment>
-        <div className="row mb-3">
-          <div className="col">
-            <h1>Movies</h1>
-          </div>
-        </div>
-        <div className="row">
-          <div className="col-3">
-            <ListGroup
-              items={genres}
-              selectedItem={selectedGenre}
-              onItemSelect={this.handleGenreSelect}
-            />
-          </div>
-          <div className="col">
-            <Link to="/movies/new" className="btn btn-primary mb-3">
-              New Movie
-            </Link>
-            <p>
-              {count > 0
-                ? `Showing ${count} movies in database.`
-                : 'There no movies in database.'}
-            </p>
-            <Search searchTerm={searchTerm} onSearch={this.handleSearch} />
-            {count > 0 && (
-              <React.Fragment>
-                <MoviesTable
-                  movies={movies}
-                  sortColumn={sortColumn}
-                  onLike={this.handleLike}
-                  onDelete={this.handleDelete}
-                  onSort={this.handleSort}
-                />
-                <Pagination
-                  itemsCount={count}
-                  pageSize={pageSize}
-                  onPageChange={this.handlePageChange}
-                  currentPage={currentPage}
-                />
-              </React.Fragment>
-            )}
-          </div>
-        </div>
-      </React.Fragment>
+      <UserConsumer>
+        {({ user }) => {
+          return (
+            <React.Fragment>
+              <div className="row mb-3">
+                <div className="col">
+                  <h1>Movies</h1>
+                </div>
+              </div>
+              <div className="row">
+                <div className="col-3">
+                  <ListGroup
+                    items={genres}
+                    selectedItem={selectedGenre}
+                    onItemSelect={this.handleGenreSelect}
+                  />
+                </div>
+                <div className="col">
+                  {user && (
+                    <Link to="/movies/new" className="btn btn-primary mb-3">
+                      New Movie
+                    </Link>
+                  )}
+                  <p>
+                    {count > 0
+                      ? `Showing ${count} movies in database.`
+                      : 'There no movies in database.'}
+                  </p>
+                  <Search
+                    searchTerm={searchTerm}
+                    onSearch={this.handleSearch}
+                  />
+                  {count > 0 && (
+                    <React.Fragment>
+                      <MoviesTable
+                        movies={movies}
+                        sortColumn={sortColumn}
+                        onLike={this.handleLike}
+                        onDelete={this.handleDelete}
+                        onSort={this.handleSort}
+                      />
+                      <Pagination
+                        itemsCount={count}
+                        pageSize={pageSize}
+                        onPageChange={this.handlePageChange}
+                        currentPage={currentPage}
+                      />
+                    </React.Fragment>
+                  )}
+                </div>
+              </div>
+            </React.Fragment>
+          );
+        }}
+      </UserConsumer>
     );
   }
 }
