@@ -3,9 +3,8 @@
 
 import http from './httpService';
 import authService from './authService';
-import { apiUrl } from '../config.json';
 
-const apiEndpoint = `${apiUrl}/users`;
+const apiEndpoint = `/users`;
 
 async function register(credits) {
   const { headers } = await http.post(apiEndpoint, {

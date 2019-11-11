@@ -5,6 +5,8 @@ import { toast } from 'react-toastify';
 // import logger from './logService';
 import tokenService from './tokenService';
 
+axios.defaults.baseURL = process.env.REACT_APP_API_URL;
+
 axios.interceptors.request.use(config => {
   const token = tokenService.get();
 

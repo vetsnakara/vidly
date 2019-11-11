@@ -1,8 +1,7 @@
 /* eslint-disable import/prefer-default-export */
 import http from './httpService';
-import { apiUrl } from '../config.json';
 
-const apiEndpoint = `${apiUrl}/movies`;
+const apiEndpoint = `/movies`;
 
 const movieUrl = id => `${apiEndpoint}/${id}`;
 
