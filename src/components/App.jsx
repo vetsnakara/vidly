@@ -25,6 +25,7 @@ import LoginForm from './LoginForm';
 import Logout from './Logout';
 import RegisterForm from './RegisterForm';
 import NotFound from './NotFound';
+import ProtectedRoute from './ProtectedRoute';
 
 import { UserProvider } from '../context/user';
 import authService from '../services/authService';
@@ -38,16 +39,10 @@ class App extends React.Component {
     super(props);
 
     this.state = {
-      user: null,
+      user: authService.getCurrentUser(),
       setUser: this.setUser,
       unsetUser: this.unsetUser,
     };
-  }
-
-  componentDidMount() {
-    const { setUser } = this.state;
-    const user = authService.getCurrentUser();
-    setUser(user);
   }
 
   setUser = user => this.setState({ user });
@@ -58,8 +53,6 @@ class App extends React.Component {
   };
 
   render() {
-    const { user } = this.state;
-
     return (
       <UserProvider value={this.state}>
         <BrowserRouter>
@@ -70,13 +63,7 @@ class App extends React.Component {
           </div>
           <main className="container">
             <Switch>
-              <Route
-                path="/movies/:id"
-                render={props => {
-                  if (!user) return <Redirect to="/login" />;
-                  return <MovieForm {...props} />;
-                }}
-              />
+              <ProtectedRoute path="/movies/:id" component={MovieForm} />
               <Route path="/movies" component={Movies} />
               <Route path="/customers" component={Customers} />
               <Route path="/rentals" component={Rentals} />

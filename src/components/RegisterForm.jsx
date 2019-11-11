@@ -5,6 +5,7 @@
 import Joi from 'joi-browser';
 
 import React from 'react';
+import { Redirect } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
 import Form from './Form';
@@ -58,6 +59,9 @@ class RegisterForm extends Form {
   }
 
   render() {
+    const { user } = this.props.context;
+    if (user) return <Redirect to="/" />;
+
     return (
       <div>
         <h1 className="mb-3">Register Form</h1>

@@ -174,7 +174,6 @@ class Movies extends React.Component {
     return (
       <UserConsumer>
         {({ user }) => {
-          console.log(user);
           return (
             <React.Fragment>
               <div className="row mb-3">

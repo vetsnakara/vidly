@@ -5,6 +5,7 @@
 import Joi from 'joi-browser';
 
 import React from 'react';
+import { Redirect } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
 import Form from './Form';
@@ -36,14 +37,18 @@ class LoginForm extends Form {
 
   async doSubmit() {
     try {
-      const { context } = this.props;
+      const {
+        context,
+        location: { state },
+      } = this.props;
       const { username: email, password } = this.state.data;
 
       const user = await authService.login(email, password);
-
       toast.success(`Welcome, ${user.name}!`);
       context.setUser(user);
-      this.props.history.push('/');
+
+      const url = state ? state.referrer : '/';
+      this.props.history.push(url);
     } catch (ex) {
       if (ex.response && ex.response.status === 400) {
         this.setState(({ errors }) => ({
@@ -53,7 +58,18 @@ class LoginForm extends Form {
     }
   }
 
+  // todo: show toast on redirect
+  // componentDidMount() {
+  // eslint-disable-next-line no-alert
+  // alert('cdm');
+  //   const { user } = this.props.context;
+  //   if (user) toast.info("You're Currently logged in");
+  // }
+
   render() {
+    const { user } = this.props.context;
+    if (user) return <Redirect to="/" />;
+
     return (
       <div>
         <h1 className="mb-3">Login Form</h1>

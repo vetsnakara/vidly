@@ -5,10 +5,23 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
+import UserContext from '../context/user';
+import WithContext from './hoc/WithContext';
+
 import Table from './Table';
 import Like from './Like';
 
-function MoviesTable({ movies, sortColumn, onDelete, onLike, onSort }) {
+function MoviesTable({
+  movies,
+  sortColumn,
+  onDelete,
+  onLike,
+  onSort,
+  context,
+}) {
+  const { user } = context;
+  const isAdmin = user && user.isAdmin;
+
   const columns = [
     {
       path: 'title',
@@ -24,9 +37,12 @@ function MoviesTable({ movies, sortColumn, onDelete, onLike, onSort }) {
         <Like liked={movie.liked} onLike={() => onLike(movie)} />
       ),
     },
-    {
-      key: 'delete',
-      content: movie => (
+  ];
+
+  const deleteColumn = {
+    key: 'delete',
+    content: movie =>
+      isAdmin && (
         <button
           type="button"
           className="btn btn-danger"
@@ -35,8 +51,9 @@ function MoviesTable({ movies, sortColumn, onDelete, onLike, onSort }) {
           Delete
         </button>
       ),
-    },
-  ];
+  };
+
+  if (isAdmin) columns.push(deleteColumn);
 
   return (
     <Table
@@ -48,4 +65,4 @@ function MoviesTable({ movies, sortColumn, onDelete, onLike, onSort }) {
   );
 }
 
-export default MoviesTable;
+export default WithContext(UserContext, MoviesTable);
