@@ -65,5 +65,8 @@
     "commitizen": {
       "path": "node_modules/cz-customizable"
     }
+  },
+  "engines": {
+    "node": "8.11.3"
   }
 }
